@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Stopwatch</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    #stopwatch {
+      font-size: 4em;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #3e8e41;
+    }
+
+    #lap-times {
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    #lap-times th,
+    #lap-times td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    #lap-times tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="stopwatch">00:00:00</div>
+  <button id="start">Start</button>
+  <button id="pause">Pause</button>
+  <button id="reset">Reset</button>
+  <table id="lap-times">
+    <thead>
+      <tr>
+        <th>Lap</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    let startTime = 0;
+    let intervalId;
+    let lapCount = 0;
+
+    const stopwatch = document.getElementById('stopwatch');
+    const startButton = document.getElementById('start');
+    const pauseButton = document.getElementById('pause');
+    const resetButton = document.getElementById('reset');
+    const lapTimesTable = document.getElementById('lap-times').getElementsByTagName('tbody')[0];
+
+    startButton.addEventListener('click', () => {
+      if (!intervalId) {
+        startTime = Date.now() - (startTime || 0);
+        intervalId = setInterval(updateStopwatch, 10);
+      }
+    });
+
+    pauseButton.addEventListener('click', () => {
+      clearInterval(intervalId);
+      intervalId = null;
+    });
+
+    resetButton.addEventListener('click', () => {
+      clearInterval(intervalId);
+      intervalId = null;
+      startTime = 0;
+      stopwatch.textContent = '00:00:00';
+      lapTimesTable.innerHTML = '';
+      lapCount = 0;
+    });
+
+    function updateStopwatch() {
+      const elapsedTime = Date.now() - startTime;
+      const hours = Math.floor(elapsedTime / (1000 * 60 * 60));
+      const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
+      stopwatch.textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
+
+    function pad(num) {
+      return ('0' + num).slice(-2);
+    }
+
+    // Function to add a lap time to the table
+    function addLapTime() {
+      const elapsedTime = Date.now() - startTime;
+      const hours = Math.floor(elapsedTime / (1000 * 60 * 60));
+      const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
+      lapCount++;
+      const newRow = lapTimesTable.insertRow();
+      newRow.insertCell().textContent = lapCount;
+      newRow.insertCell().textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
+
+    // Event listener for the "Lap" button
+    pauseButton.addEventListener('click', () => {
+      addLapTime();
+    });
+  </script>
+</body>
+
+</html>
